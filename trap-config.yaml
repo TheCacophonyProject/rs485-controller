@@ -1,4 +1,4 @@
-name: "test name"
+name: "test-name"
 version: 1
 rs485-id: 1
 digital-pins:

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/goburrow/modbus"
@@ -12,6 +13,9 @@ import (
 )
 
 const deviceTypeID = 1
+const failToFindComponentMessage = "no %s found called '%s' on device '%s'"
+
+var mu sync.Mutex
 
 type Trap struct {
 	Name          string        `yaml:"name"`
@@ -31,11 +35,6 @@ type updateDetails struct {
 	Address    []uint16
 }
 
-type device interface {
-	GetName() string
-	GetAddress() uint16
-}
-
 type DigitalPin struct {
 	Name    string `yaml:"name"`
 	Address uint16 `yaml:"address"`
@@ -44,9 +43,11 @@ type DigitalPin struct {
 }
 
 type Servo struct {
-	Name    string `yaml:"name"`
-	Address uint16 `yaml:"address"`
-	Value   uint16
+	Name     string `yaml:"name"`
+	Address  uint16 `yaml:"address"`
+	MinAngle uint16 `yaml:"min-angle"` //TODO add into code
+	MaxAngle uint16 `yaml:"max-angle"` //TODO add into code
+	Value    uint16
 }
 
 type Actuator struct {
@@ -60,14 +61,15 @@ type Actuator struct {
 }
 
 func NewTrap(filename string, serialPort string, baudRate int, timeout int) (*Trap, error) {
+	trap := &Trap{}
 	buf, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, err
+		return trap, err
 	}
-	trap := &Trap{}
+
 	err = yaml.Unmarshal(buf, trap)
 	if err != nil {
-		return nil, err
+		return trap, err
 	}
 	trap.handler = modbus.NewRTUClientHandler(serialPort)
 	trap.handler.BaudRate = baudRate
@@ -118,13 +120,87 @@ func (t *Trap) makeupdateDetails() {
 		t.updateDetails.Address[i] = actuator.RetractedAddress
 		i++
 	}
-	log.Println("asdasd")
-	log.Println(&t.Actuators[0].Retracted)
 
 	for _, val := range t.updateDetails.Address {
 		t.updateDetails.maxAddress = uint16Max(t.updateDetails.maxAddress, val)
 		t.updateDetails.minAddress = uint16Min(t.updateDetails.minAddress, val)
 	}
+}
+
+func (t *Trap) GetDigitalPin(name string) (*DigitalPin, error) {
+	for _, d := range t.DigitalPins {
+		if d.Name == name {
+			return d, nil
+		}
+	}
+	return nil, fmt.Errorf(failToFindComponentMessage, "digital pin", name, t.Name)
+}
+
+func (t *Trap) ReadDigitalPin(name string) (bool, error) {
+	d, err := t.GetDigitalPin(name)
+	if err != nil {
+		return false, err
+	}
+	return d.Value == 1, nil
+}
+
+func (t *Trap) WriteDigitalPin(name string, value uint16) error {
+	//TODO Parse boolean not uint16
+	d, err := t.GetDigitalPin(name)
+	if err != nil {
+		return err
+	}
+	return t.Write(d.Address, value)
+}
+
+func (t *Trap) GetActuator(name string) (*Actuator, error) {
+	for _, a := range t.Actuators {
+		if a.Name == name {
+			return a, nil
+		}
+	}
+	return nil, fmt.Errorf(failToFindComponentMessage, "actuator", name, t.Name)
+}
+
+func (t *Trap) ReadActuator(name string) (uint16, bool, bool, error) {
+	a, err := t.GetActuator(name)
+	if err != nil {
+		return 0, false, false, err
+	}
+	return a.Value, a.Retracted == 1, a.Extended == 1, nil
+}
+
+func (t *Trap) WriteActuator(name string, value uint16) error {
+	a, err := t.GetActuator(name)
+	if err != nil {
+		return err
+	}
+	return t.Write(a.Address, value)
+}
+
+func (t *Trap) GetServo(name string) (*Servo, error) {
+	for _, s := range t.Servos {
+		if s.Name == name {
+			return s, nil
+		}
+	}
+	return nil, fmt.Errorf(failToFindComponentMessage, "servo", name, t.Name)
+}
+
+func (t *Trap) ReadServo(name string) (uint16, error) {
+	s, err := t.GetServo(name)
+	if err != nil {
+		return 0, nil
+	}
+	return s.Value, nil
+}
+
+func (t *Trap) WriteServo(name string, value uint16) error {
+	s, err := t.GetServo(name)
+	if err != nil {
+		return err
+	}
+	return t.Write(s.Address, value)
 }
 
 // Test will check that it can connect and that the deviceTypeID and version matches
@@ -156,11 +232,17 @@ func (t *Trap) Update() error {
 	return nil
 }
 
-func (t Trap) Write(address uint16, value uint16) error {
-	return nil
+func (t *Trap) Write(address uint16, value uint16) error {
+	mu.Lock()
+	defer mu.Unlock()
+	client := modbus.NewClient(t.handler)
+	_, err := client.WriteSingleRegister(address, value)
+	return err
 }
 
 func (t *Trap) read(start uint16, len uint16) ([]uint16, error) {
+	mu.Lock()
+	defer mu.Unlock()
 	err := t.handler.Connect()
 	if err != nil {
 		return nil, err
