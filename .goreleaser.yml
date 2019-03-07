@@ -1,0 +1,41 @@
+project_name: rs485-controller
+
+release:
+  github:
+    owner: TheCacophonyProject
+    name: rs485-controller
+  name_template: '{{.Tag}}'
+
+builds:
+- goos:
+  - linux
+  goarch:
+  - arm
+  goarm:
+  - "7"
+  main: ./cmd/rs485-controller
+  ldflags: -s -w -X main.version={{.Version}}
+  binary: rs485-controller
+  hooks:
+    pre: packr
+    post: packr clean
+
+nfpm:
+  vendor: The Cacophony Project
+  homepage: http://cacophony.org.nz/
+  maintainer: Cacophony Developers <coredev@cacophony.org.nz>
+  description: Controller for devices connect by RS485 for the Cacophony Project
+  license: GPL v3.0
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Arch }}"
+  formats:
+    - deb
+  bindir: /usr/bin
+  files:
+    "_release/cacophonator-rs485-controller.service": "/etc/systemd/system/cacophonator-rs485-controller.service"
+  config_files:
+    "_release/rs485-controller.yaml": "/etc/cacophony/rs485-controller.yaml"
+
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+
+dist: dist

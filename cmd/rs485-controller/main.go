@@ -6,7 +6,12 @@ import (
 	"log"
 )
 
+var version = "<not set>"
+
 func main() {
+
+	log.SetFlags(0) // Removes timestamp output
+	log.Printf("running version: %s", version)
 
 	//TODO make this an array of devices
 	device, err := NewTrap("./trap-config.yaml", "/dev/ttyAMA0", 9600, 3000)
