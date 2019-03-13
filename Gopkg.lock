@@ -13,9 +13,21 @@
   revision = "5efbe925ecf714f8ba147bf2226f2e7afc7111bc"
   version = "v0.1.0"
 
+[[projects]]
+  name = "github.com/godbus/dbus"
+  packages = [".","introspect"]
+  revision = "2ff6f7ffd60f0f2410b3105864bdd12c7894f844"
+  version = "v5.0.1"
+
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b896fb1c8c675454cf5fa9a546b1363d853ee5b6f2404f1ed3ddc3db3cebfa82"
+  inputs-digest = "430a92dc8b5a1838ebb6e744876fcbe4de3abfb52bccd0415212339791e3ecf8"
   solver-name = "gps-cdcl"
   solver-version = 1
