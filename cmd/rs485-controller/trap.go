@@ -78,6 +78,7 @@ func NewTrap(filename string, serialPort string, baudRate int, timeout int) (*Tr
 	trap.handler.Parity = "N"
 	trap.handler.StopBits = 1
 	trap.handler.Timeout = time.Duration(timeout) * time.Millisecond
+	trap.handler.TxEnablePin = "GPIO17"
 	trap.makeupdateDetails()
 
 	log.Println(trap.updateDetails)

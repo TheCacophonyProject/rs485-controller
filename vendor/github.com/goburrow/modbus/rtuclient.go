@@ -8,7 +8,12 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"time"
+
+	"periph.io/x/periph/conn/gpio"
+	"periph.io/x/periph/conn/gpio/gpioreg"
+	"periph.io/x/periph/host"
 )
 
 const (
@@ -30,6 +35,9 @@ func NewRTUClientHandler(address string) *RTUClientHandler {
 	handler.Address = address
 	handler.Timeout = serialTimeout
 	handler.IdleTimeout = serialIdleTimeout
+	if _, err := host.Init(); err != nil {
+		log.Fatal(err)
+	}
 	return handler
 }
 
@@ -108,6 +116,21 @@ func (mb *rtuPackager) Decode(adu []byte) (pdu *ProtocolDataUnit, err error) {
 // rtuSerialTransporter implements Transporter interface.
 type rtuSerialTransporter struct {
 	serialPort
+	TxEnablePin string
+}
+
+func (mb *rtuSerialTransporter) SetTxEnablePin(on bool) error {
+	pin := gpioreg.ByName(mb.TxEnablePin)
+	if pin == nil {
+		return fmt.Errorf("pin '%s' not found", mb.TxEnablePin)
+	}
+	var state gpio.Level
+	if on {
+		state = gpio.High
+	} else {
+		state = gpio.Low
+	}
+	return pin.Out(state)
 }
 
 func (mb *rtuSerialTransporter) Send(aduRequest []byte) (aduResponse []byte, err error) {
@@ -120,14 +143,23 @@ func (mb *rtuSerialTransporter) Send(aduRequest []byte) (aduResponse []byte, err
 	mb.serialPort.startCloseTimer()
 
 	// Send the request
+	if err := mb.SetTxEnablePin(true); err != nil {
+		return nil, err
+	}
 	mb.serialPort.logf("modbus: sending % x\n", aduRequest)
 	if _, err = mb.port.Write(aduRequest); err != nil {
 		return
 	}
+
+	time.Sleep(mb.calculateTxDelay(len(aduRequest)))
+	if err := mb.SetTxEnablePin(false); err != nil {
+		return nil, err
+	}
+
 	function := aduRequest[1]
 	functionFail := aduRequest[1] & 0x80
 	bytesToRead := calculateResponseLength(aduRequest)
-	time.Sleep(mb.calculateDelay(len(aduRequest) + bytesToRead))
+	time.Sleep(mb.calculateDelay(len(aduRequest)+bytesToRead) - mb.calculateTxDelay(len(aduRequest)))
 
 	var n int
 	var n1 int
@@ -178,6 +210,11 @@ func (mb *rtuSerialTransporter) calculateDelay(chars int) time.Duration {
 		frameDelay = 35000000 / mb.BaudRate
 	}
 	return time.Duration(characterDelay*chars+frameDelay) * time.Microsecond
+}
+
+func (mb *rtuSerialTransporter) calculateTxDelay(chars int) time.Duration {
+	characterDelay := 10000000 / mb.BaudRate
+	return time.Duration(characterDelay*(chars+2)) * time.Microsecond
 }
 
 func calculateResponseLength(adu []byte) int {
