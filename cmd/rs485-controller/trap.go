@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -254,7 +256,7 @@ func (t *Trap) read(start uint16, len uint16) ([]uint16, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Unit16fromBytes(holdingResults)
+	return uint16fromBytes(holdingResults)
 }
 
 func (t Trap) String() string {
@@ -301,4 +303,16 @@ func uint16Min(a uint16, b uint16) uint16 {
 		return a
 	}
 	return b
+}
+
+func uint16fromBytes(bytes []byte) ([]uint16, error) {
+	l := len(bytes)
+	if l%2 == 1 {
+		return nil, errors.New("length must be divisible by 2")
+	}
+	res := make([]uint16, l/2)
+	for i := 0; i < l/2; i++ {
+		res[i] = binary.BigEndian.Uint16(bytes[i*2 : i*2+2])
+	}
+	return res, nil
 }

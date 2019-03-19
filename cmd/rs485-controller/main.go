@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/binary"
-	"errors"
 	"log"
 )
 
@@ -42,16 +40,4 @@ func main() {
 		log.Println(device.Actuators[0].Retracted)
 		//time.Sleep(1 * time.Second)
 	}
-}
-
-func Unit16fromBytes(bytes []byte) ([]uint16, error) {
-	l := len(bytes)
-	if l%2 == 1 {
-		return nil, errors.New("length must be divisible by 2")
-	}
-	res := make([]uint16, l/2)
-	for i := 0; i < l/2; i++ {
-		res[i] = binary.BigEndian.Uint16(bytes[i*2 : i*2+2])
-	}
-	return res, nil
 }
