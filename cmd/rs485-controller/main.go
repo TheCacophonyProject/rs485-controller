@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 )
 
 var version = "<not set>"
@@ -38,6 +39,6 @@ func main() {
 		}
 		log.Println(device.Actuators[0].Value)
 		log.Println(device.Actuators[0].Retracted)
-		//time.Sleep(1 * time.Second)
+		time.Sleep(60 * time.Second)
 	}
 }
