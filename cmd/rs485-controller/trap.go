@@ -193,7 +193,7 @@ func (t *Trap) GetServo(name string) (*Servo, error) {
 func (t *Trap) ReadServo(name string) (uint16, error) {
 	s, err := t.GetServo(name)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 	return s.Value, nil
 }
