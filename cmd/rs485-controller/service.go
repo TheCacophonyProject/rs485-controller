@@ -62,13 +62,13 @@ func (s service) WriteDigitalPin(name string, value uint16) *dbus.Error {
 func (s service) ReadDigitalPin(pinName string, update bool) (bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return false, dbusError(".Read", err.Error())
+			return false, dbusError("ReadDigitalPin", err.Error())
 		}
 	}
 
 	res, err := s.device.ReadDigitalPin(pinName)
 	if err != nil {
-		return false, dbusError(".Read", err.Error())
+		return false, dbusError("ReadDigitalPin", err.Error())
 	}
 	return res, nil
 }
@@ -76,7 +76,7 @@ func (s service) ReadDigitalPin(pinName string, update bool) (bool, *dbus.Error)
 func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, nil, dbusError(".Read", err.Error())
+			return nil, nil, nil, dbusError("ReadAllDigitalPins", err.Error())
 		}
 	}
 
@@ -88,7 +88,7 @@ func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbu
 	for i, d := range s.device.DigitalPins {
 		val, err := s.device.ReadDigitalPin(d.Name)
 		if err != nil {
-			return nil, nil, nil, dbusError(".ReadAllDigitalPins", err.Error())
+			return nil, nil, nil, dbusError("ReadAllDigitalPins", err.Error())
 		}
 		names[i] = d.Name
 		output[i] = d.Output
@@ -99,7 +99,7 @@ func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbu
 
 func (s service) WriteActuator(actuatorName string, value uint16) *dbus.Error {
 	if err := s.device.WriteActuator(actuatorName, value); err != nil {
-		return dbusError(".WriteActuator", err.Error())
+		return dbusError("WriteActuator", err.Error())
 	}
 	return nil
 }
@@ -107,7 +107,7 @@ func (s service) WriteActuator(actuatorName string, value uint16) *dbus.Error {
 func (s service) ReadActuator(actuatorName string, update bool) (uint16, bool, bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return 0, false, false, dbusError(".Read", err.Error())
+			return 0, false, false, dbusError("ReadActuator", err.Error())
 		}
 	}
 	val, extended, retracted, err := s.device.ReadActuator(actuatorName)
@@ -120,7 +120,7 @@ func (s service) ReadActuator(actuatorName string, update bool) (uint16, bool, b
 func (s service) ReadAllActuators(update bool) ([]string, []uint16, []bool, []bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, nil, nil, dbusError(".Read", err.Error())
+			return nil, nil, nil, nil, dbusError("ReadAllActuators", err.Error())
 		}
 	}
 	l := len(s.device.Actuators)
@@ -152,7 +152,7 @@ func (s service) WriteServo(servoName string, value uint16) *dbus.Error {
 func (s service) ReadServo(servoName string, update bool) (uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return 0, dbusError(".Read", err.Error())
+			return 0, dbusError("ReadServo", err.Error())
 		}
 	}
 	val, err := s.device.ReadServo(servoName)
@@ -165,7 +165,7 @@ func (s service) ReadServo(servoName string, update bool) (uint16, *dbus.Error) 
 func (s service) ReadAllServos(update bool) ([]string, []uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, dbusError(".Read", err.Error())
+			return nil, nil, dbusError("ReadAllServos", err.Error())
 		}
 	}
 
