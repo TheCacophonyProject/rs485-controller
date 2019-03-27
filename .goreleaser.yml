@@ -7,18 +7,25 @@ release:
   name_template: '{{.Tag}}'
 
 builds:
-- goos:
-  - linux
-  goarch:
-  - arm
-  goarm:
-  - "7"
+- binary: rs485-controller
   main: ./cmd/rs485-controller
+  goos:
+    - linux
+  goarch:
+    - arm
+  goarm:
+    - "7"
   ldflags: -s -w -X main.version={{.Version}}
-  binary: rs485-controller
-  hooks:
-    pre: packr
-    post: packr clean
+- binary: trap-cli
+  main: ./cmd/trap-cli
+  goos:
+    - linux
+  goarch:
+    - arm
+  goarm:
+    - "7"
+  ldflags: -s -w -X main.version={{.Version}}
+
 
 nfpm:
   vendor: The Cacophony Project
