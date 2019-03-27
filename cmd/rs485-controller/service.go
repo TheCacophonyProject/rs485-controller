@@ -47,36 +47,36 @@ func genIntrospectable(v interface{}) introspect.Introspectable {
 	return introspect.NewIntrospectable(node)
 }
 
-func (s service) WriteDigitalPin(name string, value uint16) *dbus.Error {
+func (s service) DigitalPinWrite(name string, value uint16) *dbus.Error {
 	d, err := s.device.GetDigitalPin(name)
 	if err != nil {
-		return dbusError("WriteDigitalPin", err.Error())
+		return dbusError("DigitalPinWrite", err.Error())
 	}
 	err = s.device.Write(d.Address, value)
 	if err != nil {
-		return dbusError("WriteDigitalPin", err.Error())
+		return dbusError("DigitalPinWrite", err.Error())
 	}
 	return nil
 }
 
-func (s service) ReadDigitalPin(pinName string, update bool) (bool, *dbus.Error) {
+func (s service) DigitalPinRead(pinName string, update bool) (bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return false, dbusError("ReadDigitalPin", err.Error())
+			return false, dbusError("DigitalPinRead", err.Error())
 		}
 	}
 
 	res, err := s.device.ReadDigitalPin(pinName)
 	if err != nil {
-		return false, dbusError("ReadDigitalPin", err.Error())
+		return false, dbusError("DigitalPinRead", err.Error())
 	}
 	return res, nil
 }
 
-func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbus.Error) {
+func (s service) DigitalPinReadAll(update bool) ([]string, []bool, []bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, nil, dbusError("ReadAllDigitalPins", err.Error())
+			return nil, nil, nil, dbusError("DigitalPinReadAll", err.Error())
 		}
 	}
 
@@ -88,7 +88,7 @@ func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbu
 	for i, d := range s.device.DigitalPins {
 		val, err := s.device.ReadDigitalPin(d.Name)
 		if err != nil {
-			return nil, nil, nil, dbusError("ReadAllDigitalPins", err.Error())
+			return nil, nil, nil, dbusError("DigitalPinReadAll", err.Error())
 		}
 		names[i] = d.Name
 		output[i] = d.Output
@@ -97,30 +97,30 @@ func (s service) ReadAllDigitalPins(update bool) ([]string, []bool, []bool, *dbu
 	return names, output, values, nil
 }
 
-func (s service) WriteActuator(actuatorName string, value uint16) *dbus.Error {
+func (s service) ActuatorWrite(actuatorName string, value uint16) *dbus.Error {
 	if err := s.device.WriteActuator(actuatorName, value); err != nil {
-		return dbusError("WriteActuator", err.Error())
+		return dbusError("ActuatorWrite", err.Error())
 	}
 	return nil
 }
 
-func (s service) ReadActuator(actuatorName string, update bool) (uint16, bool, bool, *dbus.Error) {
+func (s service) ActuatorRead(actuatorName string, update bool) (uint16, bool, bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return 0, false, false, dbusError("ReadActuator", err.Error())
+			return 0, false, false, dbusError("ActuatorRead", err.Error())
 		}
 	}
 	val, extended, retracted, err := s.device.ReadActuator(actuatorName)
 	if err != nil {
-		return 0, false, false, dbusError("ReadActuator", err.Error())
+		return 0, false, false, dbusError("ActuatorRead", err.Error())
 	}
 	return val, extended, retracted, nil
 }
 
-func (s service) ReadAllActuators(update bool) ([]string, []uint16, []bool, []bool, *dbus.Error) {
+func (s service) ActuatorReadAll(update bool) ([]string, []uint16, []bool, []bool, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, nil, nil, dbusError("ReadAllActuators", err.Error())
+			return nil, nil, nil, nil, dbusError("ActuatorReadAll", err.Error())
 		}
 	}
 	l := len(s.device.Actuators)
@@ -132,7 +132,7 @@ func (s service) ReadAllActuators(update bool) ([]string, []uint16, []bool, []bo
 	for i, a := range s.device.Actuators {
 		val, e, r, err := s.device.ReadActuator(a.Name)
 		if err != nil {
-			return nil, nil, nil, nil, dbusError("ReadAllActuators", err.Error())
+			return nil, nil, nil, nil, dbusError("ActuatorReadAll", err.Error())
 		}
 		name[i] = a.Name
 		state[i] = val
@@ -142,30 +142,30 @@ func (s service) ReadAllActuators(update bool) ([]string, []uint16, []bool, []bo
 	return name, state, exnteded, retracted, nil
 }
 
-func (s service) WriteServo(servoName string, value uint16) *dbus.Error {
+func (s service) ServoWrite(servoName string, value uint16) *dbus.Error {
 	if err := s.device.WriteServo(servoName, value); err != nil {
-		return dbusError("WriteServo", err.Error())
+		return dbusError("ServoWrite", err.Error())
 	}
 	return nil
 }
 
-func (s service) ReadServo(servoName string, update bool) (uint16, *dbus.Error) {
+func (s service) ServoRead(servoName string, update bool) (uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return 0, dbusError("ReadServo", err.Error())
+			return 0, dbusError("ServoRead", err.Error())
 		}
 	}
 	val, err := s.device.ReadServo(servoName)
 	if err != nil {
-		return 0, dbusError("ReadServo", err.Error())
+		return 0, dbusError("ServoRead", err.Error())
 	}
 	return val, nil
 }
 
-func (s service) ReadAllServos(update bool) ([]string, []uint16, *dbus.Error) {
+func (s service) ServoReadAll(update bool) ([]string, []uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return nil, nil, dbusError("ReadAllServos", err.Error())
+			return nil, nil, dbusError("ServosReadAll", err.Error())
 		}
 	}
 
@@ -176,7 +176,7 @@ func (s service) ReadAllServos(update bool) ([]string, []uint16, *dbus.Error) {
 	for i, servo := range s.device.Servos {
 		val, err := s.device.ReadServo(servo.Name)
 		if err != nil {
-			return nil, nil, dbusError("ReadAllServos", err.Error())
+			return nil, nil, dbusError("ServosReadAll", err.Error())
 		}
 		names[i] = servo.Name
 		values[i] = val
