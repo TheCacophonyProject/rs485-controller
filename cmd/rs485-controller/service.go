@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 
+	trapController "github.com/TheCacophonyProject/rs485-controller/trapController"
 	"github.com/godbus/dbus"
 	"github.com/godbus/dbus/introspect"
 )
@@ -13,10 +14,10 @@ const (
 )
 
 type service struct {
-	device Trap
+	device trapController.Trap
 }
 
-func startDbusService(device Trap) error {
+func startDbusService(device trapController.Trap) error {
 	conn, err := dbus.SystemBus()
 	if err != nil {
 		return err

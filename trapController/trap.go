@@ -1,4 +1,4 @@
-package main
+package trapController
 
 import (
 	"encoding/binary"
@@ -279,16 +279,16 @@ func (t Trap) String() string {
 }
 
 func (d DigitalPin) String() string {
-	return fmt.Sprintf("DigitalPin: '%s', Address: '%d', Output: '%t'\n", d.Name, d.Address, d.Output)
+	return fmt.Sprintf("DigitalPin: '%s', Value: '%t', Output: '%d'\n", d.Name, d.Output, d.Value)
 }
 
 func (s Servo) String() string {
-	return fmt.Sprintf("Servo: `%s`, Address: `%d`\n", s.Name, s.Address)
+	return fmt.Sprintf("Servo: '%s', Value: '%d'\n", s.Name, s.Value)
 }
 
 func (a Actuator) String() string {
-	return fmt.Sprintf("Actuator: `%s`, Address: `%d`, Extended Address: `%d`, Retracted Address: `%d`\n",
-		a.Name, a.Address, a.ExtendedAddress, a.RetractedAddress)
+	return fmt.Sprintf("Actuator: '%s', Value: '%d', Extended: '%d', Retracted: '%d'\n",
+		a.Name, a.Value, a.Extended, a.Retracted)
 }
 
 func uint16Max(a uint16, b uint16) uint16 {

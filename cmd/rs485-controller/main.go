@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"time"
+
+	trapController "github.com/TheCacophonyProject/rs485-controller/trapController"
 )
 
 var version = "<not set>"
@@ -13,7 +15,7 @@ func main() {
 	log.Printf("running version: %s", version)
 
 	//TODO make this an array of devices
-	device, err := NewTrap("./trap-config.yaml", "/dev/ttyAMA0", 9600, 3000)
+	device, err := trapController.NewTrap("./trap-config.yaml", "/dev/ttyAMA0", 9600, 3000)
 	if err != nil {
 		log.Println("trap fail")
 		log.Fatal(err)

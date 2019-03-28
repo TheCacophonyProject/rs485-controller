@@ -55,13 +55,11 @@ func main() {
 		return
 	}
 	if digitalPinReadAll {
-		names, outputs, values, err := trapController.DigitalPinReadAll(!skipUpdate)
+		res, err := trapController.DigitalPinReadAll(!skipUpdate)
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(names)
-		log.Println(outputs)
-		log.Println(values)
+		log.Println(res)
 		return
 	}
 
@@ -81,16 +79,15 @@ func main() {
 		log.Println(value)
 		log.Println(extended)
 		log.Println(retracted)
+		return
 	}
 	if actuatorReadAll {
-		names, vals, extended, retracted, err := trapController.ActuatorReadAll(!skipUpdate)
+		actuators, err := trapController.ActuatorReadAll(!skipUpdate)
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(names)
-		log.Println(vals)
-		log.Println(extended)
-		log.Println(retracted)
+		log.Println(actuators)
+		return
 	}
 
 	if servoWrite != "" {
@@ -110,12 +107,11 @@ func main() {
 		return
 	}
 	if servoReadAll {
-		names, values, err := trapController.ServoReadAll(!skipUpdate)
+		servos, err := trapController.ServoReadAll(!skipUpdate)
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Println(names)
-		log.Println(values)
+		log.Println(servos)
 		return
 	}
 

@@ -10,12 +10,6 @@ const (
 	methodBase = "org.cacophony.rs485controller"
 )
 
-type DigitalPin struct {
-	name   string
-	value  bool
-	output bool
-}
-
 func DigitalPinWrite(pin string, val uint16) error {
 	obj, err := getDbusObj()
 	if err != nil {
@@ -29,16 +23,25 @@ func DigitalPinRead(pin string, update bool) (res DigitalPin, err error) {
 	if err != nil {
 		return
 	}
-	err = obj.Call(methodBase+".DigitalPinRead", 0, pin, update).Store(&res.value)
+	err = obj.Call(methodBase+".DigitalPinRead", 0, pin, update).Store(&res.Value)
 	return
 }
 
-func DigitalPinReadAll(update bool) (names []string, outputs, values []bool, err error) {
+func DigitalPinReadAll(update bool) (res []DigitalPin, err error) {
 	obj, err := getDbusObj()
 	if err != nil {
 		return
 	}
+	var names []string
+	var outputs, values []bool
+
 	err = obj.Call(methodBase+".DigitalPinReadAll", 0, update).Store(&names, &outputs, &values)
+	res = make([]DigitalPin, len(names))
+	for i := range res {
+		res[i].Name = names[i]
+		res[i].Output = outputs[i]
+		res[i].Value = boolToUint16(values[i])
+	}
 	return
 }
 
@@ -59,12 +62,22 @@ func ActuatorRead(name string, update bool) (value uint16, extended, retracted b
 	return
 }
 
-func ActuatorReadAll(update bool) (names []string, values []uint16, extended, retracted []bool, err error) {
+func ActuatorReadAll(update bool) (res []Actuator, err error) {
 	obj, err := getDbusObj()
 	if err != nil {
 		return
 	}
+	var names []string
+	var values []uint16
+	var extended, retracted []bool
 	err = obj.Call(methodBase+".ActuatorReadAll", 0, update).Store(&names, &values, &extended, &retracted)
+	res = make([]Actuator, len(names))
+	for i := range res {
+		res[i].Name = names[i]
+		res[i].Value = values[i]
+		res[i].Extended = boolToUint16(extended[i])
+		res[i].Retracted = boolToUint16(retracted[i])
+	}
 	return
 }
 
@@ -85,12 +98,19 @@ func ServoRead(name string, update bool) (value uint16, err error) {
 	return
 }
 
-func ServoReadAll(update bool) (names []string, values []uint16, err error) {
+func ServoReadAll(update bool) (res []Servo, err error) {
 	obj, err := getDbusObj()
 	if err != nil {
 		return
 	}
+	var names []string
+	var values []uint16
 	err = obj.Call(methodBase+".ServoReadAll", 0, update).Store(&names, &values)
+	res = make([]Servo, len(names))
+	for i := range res {
+		res[i].Name = names[i]
+		res[i].Value = values[i]
+	}
 	return
 }
 
@@ -101,4 +121,11 @@ func getDbusObj() (dbus.BusObject, error) {
 	}
 	obj := conn.Object(dbusDest, dbusPath)
 	return obj, nil
+}
+
+func boolToUint16(val bool) uint16 {
+	if val {
+		return 1
+	}
+	return 0
 }
