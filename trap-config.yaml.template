@@ -1,0 +1,26 @@
+name: "test name"
+version: 1
+rs485-id: 1
+digital-pins:
+  - name: "PIR1"
+    address: 2
+    output: false
+  - name: "PIR2"
+    address: 3
+    output: false
+  - name: "6VEnable"
+    address: 9
+    output: true
+  - name: "12VEnable"
+    address: 10
+    output: true
+servos:
+  - name: "Activate"
+    address: 7
+  - name: "Extra"
+    address: 8
+actuators:
+  - name: "Reset"
+    address: 4
+    extended-address: 5
+    retracted-address: 6
