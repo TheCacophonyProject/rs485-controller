@@ -39,6 +39,7 @@ nfpm:
   bindir: /usr/bin
   files:
     "_release/cacophonator-rs485-controller.service": "/etc/systemd/system/cacophonator-rs485-controller.service"
+    "_release/org.cacophony.rs485controller.conf": "/etc/dbus-1/system.d/org.cacophony.rs485controller.conf"
   config_files:
     "_release/rs485-controller.yaml": "/etc/cacophony/rs485-controller.yaml"
 
