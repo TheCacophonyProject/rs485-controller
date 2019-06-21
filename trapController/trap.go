@@ -14,8 +14,11 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const deviceTypeID = 1
-const failToFindComponentMessage = "no %s found called '%s' on device '%s'"
+const (
+	deviceTypeID               = 1
+	failToFindComponentMessage = "no %s found called '%s' on device '%s'"
+	readWriteRetries           = 3
+)
 
 var mu sync.Mutex
 
@@ -139,12 +142,12 @@ func (t *Trap) GetDigitalPin(name string) (*DigitalPin, error) {
 	return nil, fmt.Errorf(failToFindComponentMessage, "digital pin", name, t.Name)
 }
 
-func (t *Trap) ReadDigitalPin(name string) (bool, error) {
+func (t *Trap) ReadDigitalPin(name string) (uint16, error) {
 	d, err := t.GetDigitalPin(name)
 	if err != nil {
-		return false, err
+		return 0, err
 	}
-	return d.Value == 1, nil
+	return d.Value, nil
 }
 
 func (t *Trap) WriteDigitalPin(name string, value uint16) error {
@@ -236,6 +239,21 @@ func (t *Trap) Update() error {
 }
 
 func (t *Trap) Write(address uint16, value uint16) error {
+	i := readWriteRetries
+	for {
+		err := t.WriteTry(address, value)
+		if err == nil {
+			return nil
+		}
+		if i <= 0 {
+			return err
+		}
+		log.Println("write failed. trying %d more times: %s", i, err.Error())
+		i--
+	}
+}
+
+func (t *Trap) WriteTry(address uint16, value uint16) error {
 	mu.Lock()
 	defer mu.Unlock()
 	client := modbus.NewClient(t.handler)
@@ -244,6 +262,21 @@ func (t *Trap) Write(address uint16, value uint16) error {
 }
 
 func (t *Trap) read(start uint16, len uint16) ([]uint16, error) {
+	i := readWriteRetries
+	for {
+		result, err := t.readTry(start, len)
+		if err == nil {
+			return result, nil
+		}
+		if i <= 0 {
+			return nil, err
+		}
+		log.Println("read failed. trying %d more times: %s", i, err.Error())
+		i--
+	}
+}
+
+func (t *Trap) readTry(start uint16, len uint16) ([]uint16, error) {
 	mu.Lock()
 	defer mu.Unlock()
 	err := t.handler.Connect()

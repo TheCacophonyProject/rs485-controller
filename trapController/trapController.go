@@ -33,14 +33,15 @@ func DigitalPinReadAll(update bool) (res []DigitalPin, err error) {
 		return
 	}
 	var names []string
-	var outputs, values []bool
+	var outputs []bool
+	var values []uint16
 
 	err = obj.Call(methodBase+".DigitalPinReadAll", 0, update).Store(&names, &outputs, &values)
 	res = make([]DigitalPin, len(names))
 	for i := range res {
 		res[i].Name = names[i]
 		res[i].Output = outputs[i]
-		res[i].Value = boolToUint16(values[i])
+		res[i].Value = values[i]
 	}
 	return
 }
