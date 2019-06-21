@@ -1,9 +1,9 @@
 [Unit]
-Description=Cacophonator rs485 controller
+Description=Cacophonator trap sequence
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/rs485-controller
+ExecStart=/usr/bin/trap-sequence
 Restart=on-failure
 RestartSec=5s
 
