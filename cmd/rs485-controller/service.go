@@ -60,21 +60,21 @@ func (s service) DigitalPinWrite(name string, value uint16) *dbus.Error {
 	return nil
 }
 
-func (s service) DigitalPinRead(pinName string, update bool) (bool, *dbus.Error) {
+func (s service) DigitalPinRead(pinName string, update bool) (uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
-			return false, dbusError("DigitalPinRead", err.Error())
+			return 0, dbusError("DigitalPinRead", err.Error())
 		}
 	}
 
 	res, err := s.device.ReadDigitalPin(pinName)
 	if err != nil {
-		return false, dbusError("DigitalPinRead", err.Error())
+		return 0, dbusError("DigitalPinRead", err.Error())
 	}
 	return res, nil
 }
 
-func (s service) DigitalPinReadAll(update bool) ([]string, []bool, []bool, *dbus.Error) {
+func (s service) DigitalPinReadAll(update bool) ([]string, []bool, []uint16, *dbus.Error) {
 	if update {
 		if err := s.device.Update(); err != nil {
 			return nil, nil, nil, dbusError("DigitalPinReadAll", err.Error())
@@ -84,7 +84,7 @@ func (s service) DigitalPinReadAll(update bool) ([]string, []bool, []bool, *dbus
 	l := len(s.device.DigitalPins)
 	names := make([]string, l)
 	output := make([]bool, l)
-	values := make([]bool, l)
+	values := make([]uint16, l)
 
 	for i, d := range s.device.DigitalPins {
 		val, err := s.device.ReadDigitalPin(d.Name)
