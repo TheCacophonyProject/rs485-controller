@@ -25,6 +25,15 @@ builds:
   goarm:
     - "7"
   ldflags: -s -w -X main.version={{.Version}}
+- binary: trap-sequence
+  main: ./cmd/trap-sequence
+  goos:
+    - linux
+  goarch:
+    - arm
+  goarm:
+    - "7"
+  ldflags: -s -w -X main.version={{.Version}}
 
 
 nfpm:
