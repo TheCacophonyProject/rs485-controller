@@ -71,6 +71,9 @@ func (s service) GetState() (string, *dbus.Error) {
 
 // StopSequence will stop the trap sequence
 func (s service) StopSequence() *dbus.Error {
-	s.sequence.Stop()
+	err := s.sequence.Stop()
+	if err != nil {
+		return dbusError("StopSequence", err.Error())
+	}
 	return nil
 }

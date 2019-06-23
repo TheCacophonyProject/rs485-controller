@@ -47,9 +47,13 @@ func (s *sequence) error(err error) {
 	s.updateState(fmt.Sprintf("erorr in sequence: ", err.Error()))
 }
 
-func (s *sequence) Stop() {
+func (s *sequence) Stop() error {
+	if !s.running {
+		return errors.New("sequence already stopped")
+	}
 	s.quit <- true
 	trapController.ActuatorWrite("Reset", 2)
+	return nil
 }
 
 func (s *sequence) runSequence() error {

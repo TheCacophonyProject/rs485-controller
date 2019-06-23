@@ -5,6 +5,13 @@ import (
 	"log"
 
 	"github.com/TheCacophonyProject/rs485-controller/trapController"
+	"github.com/godbus/dbus"
+)
+
+const (
+	dbusPath   = "/org/cacophony/trapsequence"
+	dbusDest   = "org.cacophony.trapsequence"
+	methodBase = "org.cacophony.trapsequence"
 )
 
 var (
@@ -15,7 +22,7 @@ func main() {
 	log.SetFlags(0) // Removes timestamp output
 	log.Printf("running version: %s", version)
 
-	var digitalPinReadAll, actuatorReadAll, servoReadAll, skipUpdate bool
+	var digitalPinReadAll, actuatorReadAll, servoReadAll, skipUpdate, startTrap, stopTrap, getTrapState bool
 	var digitalPinRead, digitalPinWrite, servoRead, servoWrite, actuatorRead, actuatorWrite string
 	var val64 uint64
 
@@ -34,9 +41,54 @@ func main() {
 	flag.StringVar(&servoRead, "servo-read", "", "Read a servo")
 	flag.BoolVar(&servoReadAll, "servo-read-all", false, "Read all servos")
 
+	flag.BoolVar(&startTrap, "start-trap", false, "Start the trap sequence")
+	flag.BoolVar(&stopTrap, "stop-trap", false, "Stop the trap sequence")
+	flag.BoolVar(&getTrapState, "get-state", false, "Get trap state")
+
 	flag.Parse()
 
 	val := uint16(val64)
+
+	if startTrap {
+		obj, err := getDbusObj()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		err = obj.Call(methodBase+".StartSequence", 0).Store()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
+	if stopTrap {
+		obj, err := getDbusObj()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		err = obj.Call(methodBase+".StopSequence", 0).Store()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
+	if getTrapState {
+		obj, err := getDbusObj()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		var state string
+		err = obj.Call(methodBase+".GetState", 0).Store(&state)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println("trap state:", state)
+		return
+	}
 
 	if digitalPinWrite != "" {
 		err := trapController.DigitalPinWrite(digitalPinWrite, val)
@@ -115,4 +167,13 @@ func main() {
 		return
 	}
 
+}
+
+func getDbusObj() (dbus.BusObject, error) {
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		return nil, err
+	}
+	obj := conn.Object(dbusDest, dbusPath)
+	return obj, nil
 }
