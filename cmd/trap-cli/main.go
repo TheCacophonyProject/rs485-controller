@@ -50,12 +50,7 @@ func main() {
 	val := uint16(val64)
 
 	if startTrap {
-		obj, err := getDbusObj()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		err = obj.Call(methodBase+".StartSequence", 0).Store()
+		err := trapController.StartSequence()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,12 +58,7 @@ func main() {
 	}
 
 	if stopTrap {
-		obj, err := getDbusObj()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		err = obj.Call(methodBase+".StopSequence", 0).Store()
+		err := trapController.StopSequence()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -76,13 +66,7 @@ func main() {
 	}
 
 	if getTrapState {
-		obj, err := getDbusObj()
-		if err != nil {
-			log.Fatal(err)
-			return
-		}
-		var state string
-		err = obj.Call(methodBase+".GetState", 0).Store(&state)
+		state, err := trapController.GetSequenceState()
 		if err != nil {
 			log.Fatal(err)
 		}

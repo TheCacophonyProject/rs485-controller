@@ -52,7 +52,7 @@ func (s *sequence) Stop() error {
 		return errors.New("sequence already stopped")
 	}
 	s.quit <- true
-	trapController.ActuatorWrite("Reset", 2)
+	trapController.ActuatorWrite("Reset", 0)
 	return nil
 }
 

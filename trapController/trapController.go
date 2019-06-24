@@ -1,6 +1,8 @@
 package trapController
 
 import (
+	"log"
+
 	"github.com/godbus/dbus"
 )
 
@@ -8,7 +10,39 @@ const (
 	dbusPath   = "/org/cacophony/rs485controller"
 	dbusDest   = "org.cacophony.rs485controller"
 	methodBase = "org.cacophony.rs485controller"
+
+	sequenceDbusPath   = "/org/cacophony/trapsequence"
+	sequenceDbusDest   = "org.cacophony.trapsequence"
+	sequenceMethodBase = "org.cacophony.trapsequence"
 )
+
+func StartSequence() error {
+	obj, err := getSequenceDbusObj()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return obj.Call(sequenceMethodBase+".StartSequence", 0).Store()
+}
+
+func StopSequence() error {
+	obj, err := getSequenceDbusObj()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return obj.Call(sequenceMethodBase+".StopSequence", 0).Store()
+}
+
+func GetSequenceState() (string, error) {
+	obj, err := getSequenceDbusObj()
+	if err != nil {
+		return "", err
+	}
+	var state string
+	err = obj.Call(sequenceMethodBase+".GetState", 0).Store(&state)
+	return state, err
+}
 
 func DigitalPinWrite(pin string, val uint16) error {
 	obj, err := getDbusObj()
@@ -121,6 +155,15 @@ func getDbusObj() (dbus.BusObject, error) {
 		return nil, err
 	}
 	obj := conn.Object(dbusDest, dbusPath)
+	return obj, nil
+}
+
+func getSequenceDbusObj() (dbus.BusObject, error) {
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		return nil, err
+	}
+	obj := conn.Object(sequenceDbusDest, sequenceDbusPath)
 	return obj, nil
 }
 
