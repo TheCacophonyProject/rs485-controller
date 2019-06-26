@@ -231,7 +231,6 @@ func (t *Trap) Update() error {
 	if err != nil {
 		return err
 	}
-	log.Println(res)
 	for i, address := range t.updateDetails.Address {
 		*t.updateDetails.Values[i] = res[address-t.updateDetails.minAddress]
 	}
