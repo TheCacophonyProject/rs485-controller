@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/goburrow/modbus"
+	"github.com/TheCacophonyProject/modbus"
 	yaml "gopkg.in/yaml.v2"
 )
 
