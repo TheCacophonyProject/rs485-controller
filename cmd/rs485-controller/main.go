@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"runtime"
 	"time"
 
 	trapController "github.com/TheCacophonyProject/rs485-controller/trapController"
@@ -46,15 +47,20 @@ func main() {
 	}
 	log.Println("started DBUS service")
 
-	for {
-		err = device.Update()
-		if err != nil {
-			log.Fatal(err)
+	runtime.Goexit() // Stay on for dbus service
+	/*
+		select {}
+
+		for {
+			err = device.Update()
+			if err != nil {
+				log.Fatal(err)
+			}
+			//log.Println(device.Actuators[0].Value)
+			//log.Println(device.Actuators[0].Retracted)
+			time.Sleep(60 * time.Second)
 		}
-		log.Println(device.Actuators[0].Value)
-		log.Println(device.Actuators[0].Retracted)
-		time.Sleep(60 * time.Second)
-	}
+	*/
 }
 
 func restartTrapPower(powerPin string) error {

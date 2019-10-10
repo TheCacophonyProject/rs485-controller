@@ -7,7 +7,8 @@ release:
   name_template: '{{.Tag}}'
 
 builds:
-- binary: rs485-controller
+- id: rs485-controller
+  binary: rs485-controller
   main: ./cmd/rs485-controller
   goos:
     - linux
@@ -16,7 +17,8 @@ builds:
   goarm:
     - "7"
   ldflags: -s -w -X main.version={{.Version}}
-- binary: trap-cli
+- id: trap-cli
+  binary: trap-cli
   main: ./cmd/trap-cli
   goos:
     - linux
@@ -24,8 +26,9 @@ builds:
     - arm
   goarm:
     - "7"
-  ldflags: -s -w -X main.version={{.Version}}
-- binary: trap-sequence
+  ldflags: -s -w -X mai.version={{.Version}}
+- id: trap-sequence
+  binary: trap-sequence
   main: ./cmd/trap-sequence
   goos:
     - linux
@@ -36,8 +39,8 @@ builds:
   ldflags: -s -w -X main.version={{.Version}}
 
 
-nfpm:
-  vendor: The Cacophony Project
+nfpms:
+- vendor: The Cacophony Project
   homepage: http://cacophony.org.nz/
   maintainer: Cacophony Developers <coredev@cacophony.org.nz>
   description: Controller for devices connect by RS485 for the Cacophony Project

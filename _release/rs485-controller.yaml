@@ -14,6 +14,9 @@ digital-pins:
   - name: "12VEnable"
     address: 10
     output: true
+  - name: "EM"
+    address: 11
+    output: true
 servos:
   - name: "Activate"
     address: 7
