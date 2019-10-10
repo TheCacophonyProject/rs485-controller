@@ -1,7 +1,0 @@
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
-# for detailed Gopkg.toml documentation.
-
-[[constraint]]
-  name = "github.com/goburrow/modbus"
-  source = "https://github.com/TheCacophonyProject/modbus.git"
-  branch = "master"
