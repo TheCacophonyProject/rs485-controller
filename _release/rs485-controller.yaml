@@ -8,20 +8,22 @@ digital-pins:
   - name: "PIR2"
     address: 3
     output: false
+  - name: "PIR3"
+    address: 13
+    output: false
   - name: "6VEnable"
     address: 9
     output: true
   - name: "12VEnable"
     address: 10
     output: true
-  - name: "EM"
-    address: 11
-    output: true
 servos:
   - name: "Activate"
     address: 7
-  - name: "Extra"
+  - name: "Door1"
     address: 8
+  - name: "Door2"
+    address: 12
 actuators:
   - name: "Reset"
     address: 4

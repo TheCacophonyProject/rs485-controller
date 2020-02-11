@@ -247,7 +247,7 @@ func (t *Trap) Write(address uint16, value uint16) error {
 		if i <= 0 {
 			return err
 		}
-		log.Println("write failed. trying %d more times: %s", i, err.Error())
+		log.Printf("write failed. trying %d more times: %s", i, err.Error())
 		i--
 	}
 }
@@ -270,7 +270,7 @@ func (t *Trap) read(start uint16, len uint16) ([]uint16, error) {
 		if i <= 0 {
 			return nil, err
 		}
-		log.Println("read failed. trying %d more times: %s", i, err.Error())
+		log.Printf("read failed. trying %d more times: %s", i, err.Error())
 		i--
 	}
 }
